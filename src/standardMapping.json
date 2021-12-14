@@ -143,7 +143,7 @@
   "cy.wait": [
     "https://www.notion.so/Mettre-en-place-des-tests-E2E-end-to-end-cypress-qui-n-chouent-que-s-il-y-a-un-d-faut-b910c18fe23348c8a74ed4d232ea33da"
   ],
-  "catch(": [
+  "catch\\(": [
     "https://www.notion.so/Throw-exceptions-ea99c0d27ff04a2ab337f5dcad26afe7"
   ],
   "Exception": [
