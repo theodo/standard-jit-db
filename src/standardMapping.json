@@ -20,7 +20,7 @@
   "DynamoDB": [
     "https://www.notion.so/How-to-run-an-efficient-DynamoDB-query-672068c0f5244de1b49a57074fde044f"
   ],
-  ".query": [
+  "query": [
     "https://www.notion.so/How-to-run-an-efficient-DynamoDB-query-672068c0f5244de1b49a57074fde044f"
   ],
   "@material-ui": [
@@ -39,6 +39,9 @@
   ],
   "jest-axe": [
     "https://www.notion.so/How-to-test-react-components-a5478e29aeee45b3aadadd0944d6681e",
+    "https://www.notion.so/Setup-automated-accessibility-tests-in-10-minutes-742cf8def78b42e598d1d35fac0b6411"
+  ],
+  "accessibility": [
     "https://www.notion.so/Setup-automated-accessibility-tests-in-10-minutes-742cf8def78b42e598d1d35fac0b6411"
   ],
   "csrf": [
@@ -169,5 +172,14 @@
   ],
   "fetch=": [
     "https://www.notion.so/How-to-choose-your-fetching-strategy-on-entities-relationships-with-an-ORM-30dc31cd3ed641659629f047e8b643ac"
+  ],
+  "install": [
+    "https://www.notion.so/What-is-a-good-install-process-15e8917a12dd48ad96a04b1c4b3ca3ea"
+  ],
+  "setup": [
+    "https://www.notion.so/What-is-a-good-install-process-15e8917a12dd48ad96a04b1c4b3ca3ea"
+  ],
+  "debug": [
+    "https://www.notion.so/How-to-debug-your-application-in-less-than-10-minutes-981b4b53cd90478b8998215e0feec290"
   ]
 }
