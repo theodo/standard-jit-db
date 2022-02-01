@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const keywordPropertyName = "Keywords to match (standard-jit)";
-const standardDatabaseId = process.env.THEODO_DB ?? "id"; // to check, go to https://www.notion.so/m33/732673368f494fe6b46ffa3b63a5f9d5
+const standardDatabaseId = process.env.THEODO_DB_ID || "id"; // to check, go to https://www.notion.so/m33/732673368f494fe6b46ffa3b63a5f9d5
 
 type KeywordFieldType = {
   rich_text: {
