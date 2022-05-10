@@ -3,11 +3,17 @@ import { Client } from "@notionhq/client";
 import { flatten, uniq } from "lodash";
 import fs from "fs";
 import dotenv from "dotenv";
+import { QueryDatabaseResponse } from "@notionhq/client/build/src/api-endpoints";
+
+const STANDARDS_MAPPING_FILE_NAME = "standardMapping";
+const JOCONDES_MAPPING_FILE_NAME = "jocondesMapping";
 
 dotenv.config();
 
 const keywordPropertyName = "Keywords to match (standard-jit)";
-const standardDatabaseId = process.env.THEODO_DB_ID || "id"; // to check, go to https://www.notion.so/m33/732673368f494fe6b46ffa3b63a5f9d5
+const mappingDirectoryName = process.env.MAPPING_DIR_NAME || "theodo";
+const standardsDatabaseId = process.env.STANDARDS_DB_ID || "id"; // to check, go to https://www.notion.so/m33/732673368f494fe6b46ffa3b63a5f9d5
+const jocondesDatabaseId = process.env.JOCONDES_DB_ID || "id";
 
 type KeywordFieldType = {
   rich_text: {
@@ -22,21 +28,19 @@ type KeywordFieldType = {
   }[];
 };
 
-(async () => {
-  const notion = new Client({
-    auth: process.env.NOTION_API_KEY,
-  });
-
-  const standardsDatabase = await notion.databases.query({
-    database_id: standardDatabaseId,
-    filter: {
-      property: keywordPropertyName,
-      title: {
-        is_not_empty: true,
-      },
+const databaseQueryParameters = {
+  filter: {
+    property: keywordPropertyName,
+    title: {
+      is_not_empty: true,
     },
-  });
-  const standardsMappingInfo = standardsDatabase.results
+  },
+} as const;
+
+function getDatabaseMappingInfo(
+  queryResults: QueryDatabaseResponse["results"]
+) {
+  return queryResults
     .map((standard) => ({
       keywordsFieldValue: (
         standard.properties[keywordPropertyName] as any as KeywordFieldType
@@ -48,23 +52,66 @@ type KeywordFieldType = {
       keywords: keywordsFieldValue[0].plain_text.split("\n"),
       url,
     }));
+}
 
-  const keywords = uniq(
-    flatten(standardsMappingInfo.map(({ keywords }) => keywords))
+async function updateMapping(
+  databaseId: string,
+  resourceMappingFileName: string,
+  notionClient: Client
+) {
+  const resourceDatabase = await notionClient.databases.query({
+    ...databaseQueryParameters,
+    database_id: databaseId,
+  });
+
+  const resourceMappingInfo = getDatabaseMappingInfo(resourceDatabase.results);
+
+  const resourceKeywords = uniq(
+    flatten(resourceMappingInfo.map(({ keywords }) => keywords))
   );
 
-  const keywordToStandardMapping = keywords.reduce<{
+  const keywordToResourceMapping = resourceKeywords.reduce<{
     [keyword: string]: string[];
   }>((mapping, keyword) => {
     return Object.assign(mapping, {
-      [keyword]: standardsMappingInfo
+      [keyword]: resourceMappingInfo
         .filter(({ keywords }) => keywords.includes(keyword))
         .map(({ url }) => url),
     });
   }, {});
 
   fs.writeFileSync(
-    "./src/standardMapping.json",
-    JSON.stringify(keywordToStandardMapping)
+    `./src/${mappingDirectoryName}/${resourceMappingFileName}.json`,
+    JSON.stringify(keywordToResourceMapping)
   );
+}
+
+(async () => {
+  const notion = new Client({
+    auth: process.env.NOTION_API_KEY,
+  });
+
+  let hasException = false;
+
+  try {
+    await updateMapping(
+      standardsDatabaseId,
+      STANDARDS_MAPPING_FILE_NAME,
+      notion
+    );
+  } catch {
+    console.error("Could not update standards mapping DB.\n");
+    hasException = true;
+  }
+
+  try {
+    await updateMapping(jocondesDatabaseId, JOCONDES_MAPPING_FILE_NAME, notion);
+  } catch {
+    console.error("Could not update jocondes mapping DB.\n");
+    hasException = true;
+  }
+
+  if (hasException) {
+    throw new Error("One or more resources could not be updated.");
+  }
 })();
